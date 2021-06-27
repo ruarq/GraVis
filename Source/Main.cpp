@@ -1,4 +1,6 @@
 #include <ctime>
+#include <iostream>
+#include <string>
 
 #include <SFML/Graphics.hpp>
 
@@ -6,6 +8,11 @@
 
 int main()
 {
+	// Get the shader program
+	std::string shaderFile;
+	std::cout << "Enter a shader file: ";
+	std::getline(std::cin, shaderFile);
+
 	std::srand(std::time(nullptr));
 
 	using namespace std::string_literals;
@@ -13,19 +20,20 @@ int main()
 	sf::Clock programClock;
 	sf::Clock frameClock;
 	sf::RenderWindow window(sf::VideoMode(1280u, 720u), "Gravity Visualisation - C++ & SFML2.5.1");
+	sf::View view = window.getView();
 
 	std::vector<CelestialBody> celestialBodies;
-	for (std::uint32_t i = 0; i < 8; i++)
+	for (std::uint32_t i = 0; i < 4; i++)
 	{
 		CelestialBody body;
 		body.SetMass(std::rand() % 901 + 100);
 
 		body.SetPosition(sf::Vector2f(std::rand() % window.getSize().x, std::rand() % window.getSize().y));
-		body.SetVelocity(sf::Vector2f(std::rand() % 51 - 25, std::rand() % 51 - 25));
+		body.SetVelocity(sf::Vector2f(std::rand() % 201 - 100, std::rand() % 201 - 100));
 
 		if (i == 0)
 		{
-			body.SetMass(std::rand() % 10001 + 50000);
+			body.SetMass(10000);
 			body.SetVelocity(sf::Vector2f(std::rand() % 11 - 5, std::rand() % 11 - 5));
 		}
 
@@ -33,7 +41,7 @@ int main()
 	}
 	
 	sf::Shader shader;
-	shader.loadFromFile("Shaders/Gravity.glsl", sf::Shader::Fragment);
+	shader.loadFromFile(shaderFile, sf::Shader::Fragment);
 	sf::Texture shaderTexture;
 	shaderTexture.create(window.getSize().x, window.getSize().y);
 	sf::Sprite shaderSprite(shaderTexture);
@@ -44,9 +52,15 @@ int main()
 	}
 
 	shader.setUniform("numCelestialBodies", int(celestialBodies.size()));
+	shader.setUniform("G", CelestialBody::G);
+	shader.setUniform("pixelMass", 0.01f);
 
 	while (window.isOpen())
 	{
+		const float deltaTime = frameClock.restart().asSeconds();
+
+		shader.setUniform("time", programClock.getElapsedTime().asSeconds());
+
 		// Handle events
 		sf::Event event;
 		while (window.pollEvent(event))
@@ -70,7 +84,6 @@ int main()
 
 		// Simulate
 		// ...
-		const float deltaTime = frameClock.restart().asSeconds();
 
 		std::uint32_t i = 0;
 		for (CelestialBody &body : celestialBodies)
