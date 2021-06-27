@@ -18,12 +18,14 @@ int main()
 	using namespace std::string_literals;
 
 	sf::Clock programClock;
+	sf::Clock titleUpdateClock;
+	const float titleUpdateTime = 1.0f;
 	sf::Clock frameClock;
 	sf::RenderWindow window(sf::VideoMode(1280u, 720u), "Gravity Visualisation - C++ & SFML2.5.1");
 	sf::View view = window.getView();
 
 	std::vector<CelestialBody> celestialBodies;
-	for (std::uint32_t i = 0; i < 4; i++)
+	for (std::uint32_t i = 0; i < 8; i++)
 	{
 		CelestialBody body;
 		body.SetMass(std::rand() % 901 + 100);
@@ -127,10 +129,12 @@ int main()
 		window.draw(shaderSprite, &shader);
 		window.display();
 
-		// using namespace std::string_literals;
-		
-		// window.setTitle("Gravity Visualisation - C++ & SFML2.5.1 - FPS: "s
-		// 	+ std::to_string(static_cast<std::int32_t>(1.0f / deltaTime)));
+		if (titleUpdateClock.getElapsedTime().asSeconds() >= titleUpdateTime)
+		{
+			titleUpdateClock.restart();
+			window.setTitle("Gravity Visualisation - C++ & SFML2.5.1 - FPS: "s
+		 		+ std::to_string(static_cast<std::int32_t>(1.0f / deltaTime)));
+		}
 	}
 
 	return 0;
