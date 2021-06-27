@@ -7,7 +7,7 @@
 class CelestialBody final
 {
 public:
-	static constexpr float G = 1.0f;
+	static constexpr float G = 100.0f;
 
 public:
 	void Update(const float deltaTime);
