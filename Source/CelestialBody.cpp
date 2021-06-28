@@ -7,6 +7,12 @@ void CelestialBody::Update(const float deltaTime)
 
 void CelestialBody::Render(sf::RenderWindow &window)
 {
+	sf::CircleShape shape;
+	shape.setRadius(radius);
+	shape.setOrigin(shape.getRadius(), shape.getRadius());
+	shape.setPosition(position);
+	shape.setFillColor(sf::Color::White);
+	window.draw(shape);
 }
 
 void CelestialBody::UpdateGravity(const CelestialBody &otherBody, const float deltaTime)
@@ -45,4 +51,14 @@ void CelestialBody::SetMass(const float mass)
 float CelestialBody::GetMass() const
 {
 	return mass;
+}
+
+void CelestialBody::SetRadius(const float radius)
+{
+	this->radius = radius;
+}
+
+float CelestialBody::GetRadius() const
+{
+	return radius;
 }

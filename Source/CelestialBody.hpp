@@ -24,7 +24,10 @@ public:
 	void SetMass(const float mass);
 	float GetMass() const;
 
+	void SetRadius(const float radius);
+	float GetRadius() const;
+
 private:
 	sf::Vector2f position, velocity;
-	float mass = 0.0f;
+	float mass = 0.0f, radius = 0.0f;
 };
