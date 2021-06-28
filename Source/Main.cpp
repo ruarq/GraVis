@@ -6,12 +6,10 @@
 
 #include "CelestialBody.hpp"
 
-int main()
+int main(int argc, char **argv)
 {
 	// Get the shader program
-	std::string shaderFile;
-	std::cout << "Enter a shader file: ";
-	std::getline(std::cin, shaderFile);
+	std::string shaderFile(argv[1]);
 
 	std::srand(std::time(nullptr));
 
@@ -25,7 +23,7 @@ int main()
 	sf::View view = window.getView();
 
 	std::vector<CelestialBody> celestialBodies;
-	for (std::uint32_t i = 0; i < 8; i++)
+	for (std::uint32_t i = 0; i < 4; i++)
 	{
 		CelestialBody body;
 		body.SetMass(std::rand() % 901 + 100);
@@ -39,6 +37,8 @@ int main()
 			body.SetVelocity(sf::Vector2f(std::rand() % 11 - 5, std::rand() % 11 - 5));
 		}
 
+		body.SetRadius(body.GetMass() / 100.0f);
+
 		celestialBodies.push_back(body);
 	}
 	
@@ -48,14 +48,14 @@ int main()
 	shaderTexture.create(window.getSize().x, window.getSize().y);
 	sf::Sprite shaderSprite(shaderTexture);
 
+	shader.setUniform("numCelestialBodies", int(celestialBodies.size()));
+	shader.setUniform("G", CelestialBody::G);
+	shader.setUniform("pixelMass", 0.01f);
+
 	if (!shader.isAvailable())
 	{
 		return 1;
 	}
-
-	shader.setUniform("numCelestialBodies", int(celestialBodies.size()));
-	shader.setUniform("G", CelestialBody::G);
-	shader.setUniform("pixelMass", 0.01f);
 
 	while (window.isOpen())
 	{
@@ -84,8 +84,7 @@ int main()
 			}
 		}
 
-		// Simulate
-		// ...
+		window.clear();
 
 		std::uint32_t i = 0;
 		for (CelestialBody &body : celestialBodies)
@@ -99,6 +98,7 @@ int main()
 			}
 
 			body.Update(deltaTime);
+			// body.Render(window);
 
 			// Wrap the position if neccessary
 			if (body.GetPosition().x < 0.0f)
@@ -121,11 +121,10 @@ int main()
 			const std::string index = "["s + std::to_string(i) + "]"s;
 			shader.setUniform("positions"s + index, sf::Glsl::Vec2(body.GetPosition().x, window.getSize().y - body.GetPosition().y));
 			shader.setUniform("masses"s + index, body.GetMass());
+			shader.setUniform("radii"s + index, body.GetRadius());
 			i++;
 		}
 
-		// Visualize
-		window.clear();
 		window.draw(shaderSprite, &shader);
 		window.display();
 
