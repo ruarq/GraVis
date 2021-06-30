@@ -20,28 +20,20 @@ int main(int argc, char **argv)
 	const float titleUpdateTime = 1.0f;
 	sf::Clock frameClock;
 	sf::RenderWindow window(sf::VideoMode(1280u, 720u), "Gravity Visualisation - C++ & SFML2.5.1");
-	sf::View view = window.getView();
+	sf::Vector2f camera;
 
 	std::vector<CelestialBody> celestialBodies;
-	for (std::uint32_t i = 0; i < 4; i++)
+	for (std::uint32_t i = 0; i < 32; i++)
 	{
 		CelestialBody body;
-		body.SetMass(std::rand() % 901 + 100);
-
+		body.SetMass(std::rand() % 1001 + 100);
 		body.SetPosition(sf::Vector2f(std::rand() % window.getSize().x, std::rand() % window.getSize().y));
-		body.SetVelocity(sf::Vector2f(std::rand() % 201 - 100, std::rand() % 201 - 100));
-
-		if (i == 0)
-		{
-			body.SetMass(10000);
-			body.SetVelocity(sf::Vector2f(std::rand() % 11 - 5, std::rand() % 11 - 5));
-		}
-
-		body.SetRadius(body.GetMass() / 100.0f);
+		body.SetVelocity(sf::Vector2f(std::rand() % 11 - 5, std::rand() % 11 - 5));
+		body.SetRadius(body.GetMass() / float(std::rand() % 200 + 100));
 
 		celestialBodies.push_back(body);
 	}
-	
+
 	sf::Shader shader;
 	shader.loadFromFile(shaderFile, sf::Shader::Fragment);
 	sf::Texture shaderTexture;
@@ -77,6 +69,11 @@ int main(int argc, char **argv)
 				{
 					shaderTexture.create(event.size.width, event.size.height);
 					shaderSprite.setTexture(shaderTexture, true);
+					
+					sf::View view = window.getDefaultView();
+					view.setSize(window.getSize().x, window.getSize().y);
+					view.setCenter(view.getSize() / 2.0f);
+					window.setView(view);
 				}	break;
 
 				default:
@@ -86,40 +83,73 @@ int main(int argc, char **argv)
 
 		window.clear();
 
-		std::uint32_t i = 0;
-		for (CelestialBody &body : celestialBodies)
+		// Move the view
+		const float cameraSpeed = 500.0f;
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
 		{
+			camera.y -= cameraSpeed * deltaTime;
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
+		{
+			camera.x -= cameraSpeed * deltaTime;
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
+		{
+			camera.y += cameraSpeed * deltaTime;
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
+		{
+			camera.x += cameraSpeed * deltaTime;
+		}
+
+		// Update
+		for (auto bodyItr = celestialBodies.begin(); bodyItr != celestialBodies.end();)
+		{
+			CelestialBody &body = *bodyItr;
 			for (CelestialBody &otherBody : celestialBodies)
 			{
-				if (&body != &otherBody)
+				if (&body == &otherBody)
 				{
-					body.UpdateGravity(otherBody, deltaTime);
+					continue;
+				}
+
+				body.UpdateGravity(otherBody, deltaTime);
+
+				if (body.Intersect(otherBody))
+				{
+					if (body.GetRadius() > otherBody.GetRadius())
+					{
+						body.Merge(otherBody);
+					}
+					else
+					{
+						otherBody.Merge(body);
+					}
 				}
 			}
 
 			body.Update(deltaTime);
-			// body.Render(window);
 
-			// Wrap the position if neccessary
-			if (body.GetPosition().x < 0.0f)
+			if (!body.GetAlive())
 			{
-				body.SetPosition(sf::Vector2f(window.getSize().x, body.GetPosition().y));
+				bodyItr = celestialBodies.erase(bodyItr);
 			}
-			if (body.GetPosition().x > window.getSize().x)
+			else
 			{
-				body.SetPosition(sf::Vector2f(0.0f, body.GetPosition().y));
+				bodyItr++;
 			}
-			if (body.GetPosition().y < 0.0f)
-			{
-				body.SetPosition(sf::Vector2f(body.GetPosition().x, window.getSize().y));
-			}
-			if (body.GetPosition().y > window.getSize().y)
-			{
-				body.SetPosition(sf::Vector2f(body.GetPosition().x, 0.0f));
-			}
+		}
 
+		// Render
+		shader.setUniform("numCelestialBodies", int(celestialBodies.size()));
+		std::uint32_t i = 0;
+		for (CelestialBody &body : celestialBodies)
+		{
 			const std::string index = "["s + std::to_string(i) + "]"s;
-			shader.setUniform("positions"s + index, sf::Glsl::Vec2(body.GetPosition().x, window.getSize().y - body.GetPosition().y));
+			shader.setUniform("positions"s + index,
+				sf::Glsl::Vec2(
+					body.GetPosition().x - camera.x,
+					window.getSize().y - body.GetPosition().y + camera.y));
 			shader.setUniform("masses"s + index, body.GetMass());
 			shader.setUniform("radii"s + index, body.GetRadius());
 			i++;
@@ -128,6 +158,7 @@ int main(int argc, char **argv)
 		window.draw(shaderSprite, &shader);
 		window.display();
 
+		// Update title bar
 		if (titleUpdateClock.getElapsedTime().asSeconds() >= titleUpdateTime)
 		{
 			titleUpdateClock.restart();
