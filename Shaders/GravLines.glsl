@@ -14,7 +14,11 @@ float Force(in vec2 coord)
 
 	for (int i = 0; i < numCelestialBodies; i++)
 	{
-		totalForce += G * (pixelMass * masses[i]) / pow(distance(positions[i], coord), 2.0);
+		float d = distance(positions[i], coord) - radii[i];
+		if (d > 0.0)
+		{
+			totalForce += G * (pixelMass * masses[i]) / (d * d);
+		}
 	}
 
 	return totalForce;
@@ -37,7 +41,7 @@ void main()
 
 	a = fract(log(c));
 
-	gl_FragColor = vec4(a * 0.25, a * 0.75, a, 1.0);
+	gl_FragColor = vec4(a * 0.5, a, a * 0.5, 1.0);
 
 	for (int i = 0; i < numCelestialBodies; i++)
 	{
@@ -45,8 +49,7 @@ void main()
 
 		if (d <= radii[i])
 		{
-			float e = Modify(force / 10.0);
-			gl_FragColor = vec4(0.2 * e, 0.9 * e, e, 1.0);
+			gl_FragColor = vec4(0.2, 0.4, 1.0, 1.0);
 		}
 	}
 }
