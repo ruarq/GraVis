@@ -7,13 +7,16 @@
 class CelestialBody final
 {
 public:
-	static constexpr float G = 100.0f;
+	static constexpr float G = 10.0f;
 
 public:
 	void Update(const float deltaTime);
 	void Render(sf::RenderWindow &window);
 
 	void UpdateGravity(const CelestialBody &otherBody, const float deltaTime);
+
+	bool Intersect(const CelestialBody &otherBody) const;
+	void Merge(CelestialBody &otherBody);
 
 	void SetPosition(const sf::Vector2f &position);
 	sf::Vector2f GetPosition() const;
@@ -27,7 +30,11 @@ public:
 	void SetRadius(const float radius);
 	float GetRadius() const;
 
+	void SetAlive(const bool alive);
+	bool GetAlive() const;
+
 private:
 	sf::Vector2f position, velocity;
 	float mass = 0.0f, radius = 0.0f;
+	bool alive = true;
 };

@@ -23,6 +23,20 @@ void CelestialBody::UpdateGravity(const CelestialBody &otherBody, const float de
 	velocity += acceleration * deltaTime;
 }
 
+bool CelestialBody::Intersect(const CelestialBody &otherBody) const
+{
+	return Distance(position, otherBody.position) <= radius + otherBody.radius;
+}
+
+void CelestialBody::Merge(CelestialBody &otherBody)
+{
+	mass += otherBody.mass;
+	radius += otherBody.radius;
+	velocity *= 0.0f;
+
+	otherBody.SetAlive(false);
+}
+
 void CelestialBody::SetPosition(const sf::Vector2f &position)
 {
 	this->position = position;
@@ -61,4 +75,14 @@ void CelestialBody::SetRadius(const float radius)
 float CelestialBody::GetRadius() const
 {
 	return radius;
+}
+
+void CelestialBody::SetAlive(const bool alive)
+{
+	this->alive = alive;
+}
+
+bool CelestialBody::GetAlive() const
+{
+	return alive;
 }
