@@ -30,9 +30,14 @@ bool CelestialBody::Intersect(const CelestialBody &otherBody) const
 
 void CelestialBody::Merge(CelestialBody &otherBody)
 {
+	// Calculate the radius after the merge
+	const float volume = mass / this->GetDensity() + otherBody.mass / this->GetDensity();
+	radius = Root(volume / ((4.0f / 3.0f) * float(M_PI)), 3.0f);
+
+	// Calculate the velocity after the merge
+	velocity = ((mass * velocity) + (otherBody.mass * otherBody.velocity)) / (mass + otherBody.mass);
+
 	mass += otherBody.mass;
-	radius += otherBody.radius;
-	velocity *= 0.0f;
 
 	otherBody.SetAlive(false);
 }
@@ -75,6 +80,11 @@ void CelestialBody::SetRadius(const float radius)
 float CelestialBody::GetRadius() const
 {
 	return radius;
+}
+
+float CelestialBody::GetDensity() const
+{
+	return mass / ((4.0f / 3.0f) * M_PI * std::pow(radius, 3.0f));
 }
 
 void CelestialBody::SetAlive(const bool alive)

@@ -39,7 +39,7 @@ void main()
 		c /= b;
 	}
 
-	a = fract(log(c));
+	a = fract(log(c)) * Modify(force);
 
 	gl_FragColor = vec4(a * 0.5, a, a * 0.5, 1.0);
 

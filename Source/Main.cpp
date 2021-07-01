@@ -4,56 +4,54 @@
 
 #include <SFML/Graphics.hpp>
 
+#include "World.hpp"
 #include "CelestialBody.hpp"
 
 int main(int argc, char **argv)
 {
-	// Get the shader program
-	std::string shaderFile(argv[1]);
-
 	std::srand(std::time(nullptr));
 
+	std::vector<sf::Vector2f> path;
+
 	using namespace std::string_literals;
+	sf::Shader shader;
 
 	sf::Clock programClock;
+	sf::Clock addToPath;
+	const float addTopathTime = 0.1f;
 	sf::Clock titleUpdateClock;
 	const float titleUpdateTime = 1.0f;
 	sf::Clock frameClock;
 	sf::RenderWindow window(sf::VideoMode(1280u, 720u), "Gravity Visualisation - C++ & SFML2.5.1");
-	sf::Vector2f camera;
+	sf::View view = window.getDefaultView();
 
-	std::vector<CelestialBody> celestialBodies;
-	for (std::uint32_t i = 0; i < 32; i++)
+	World world;
+	for (std::uint32_t i = 0; i < 2048; i++)
 	{
 		CelestialBody body;
-		body.SetMass(std::rand() % 1001 + 100);
-		body.SetPosition(sf::Vector2f(std::rand() % window.getSize().x, std::rand() % window.getSize().y));
+		body.SetMass(std::rand() % 2001 + 200);
+		body.SetPosition(sf::Vector2f(std::rand() % 10000, std::rand() % 10000));
 		body.SetVelocity(sf::Vector2f(std::rand() % 11 - 5, std::rand() % 11 - 5));
 		body.SetRadius(body.GetMass() / float(std::rand() % 200 + 100));
 
-		celestialBodies.push_back(body);
+		world.AddBody(body);
 	}
 
-	sf::Shader shader;
-	shader.loadFromFile(shaderFile, sf::Shader::Fragment);
-	sf::Texture shaderTexture;
-	shaderTexture.create(window.getSize().x, window.getSize().y);
-	sf::Sprite shaderSprite(shaderTexture);
-
-	shader.setUniform("numCelestialBodies", int(celestialBodies.size()));
-	shader.setUniform("G", CelestialBody::G);
-	shader.setUniform("pixelMass", 0.01f);
-
-	if (!shader.isAvailable())
-	{
-		return 1;
-	}
-
+	CelestialBody *prevBody, *body = nullptr;
 	while (window.isOpen())
 	{
-		const float deltaTime = frameClock.restart().asSeconds();
+		prevBody = body;
+		body = *std::max_element(world.celestialBodies.begin(), world.celestialBodies.end(), [](const CelestialBody *a, const CelestialBody *b)
+		{
+			return a->GetRadius() < b->GetRadius();
+		});
 
-		shader.setUniform("time", programClock.getElapsedTime().asSeconds());
+		if (body != prevBody)
+		{
+			path.clear();
+		}
+
+		const float deltaTime = frameClock.restart().asSeconds();
 
 		// Handle events
 		sf::Event event;
@@ -67,12 +65,7 @@ int main(int argc, char **argv)
 				
 				case sf::Event::Resized:
 				{
-					shaderTexture.create(event.size.width, event.size.height);
-					shaderSprite.setTexture(shaderTexture, true);
-					
-					sf::View view = window.getDefaultView();
 					view.setSize(window.getSize().x, window.getSize().y);
-					view.setCenter(view.getSize() / 2.0f);
 					window.setView(view);
 				}	break;
 
@@ -87,75 +80,57 @@ int main(int argc, char **argv)
 		const float cameraSpeed = 500.0f;
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
 		{
-			camera.y -= cameraSpeed * deltaTime;
+			view.move(0.0f, -cameraSpeed * deltaTime);
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
 		{
-			camera.x -= cameraSpeed * deltaTime;
+			view.move(-cameraSpeed * deltaTime, 0.0f);
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
 		{
-			camera.y += cameraSpeed * deltaTime;
+			view.move(0.0f, cameraSpeed * deltaTime);
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
 		{
-			camera.x += cameraSpeed * deltaTime;
+			view.move(cameraSpeed * deltaTime, 0.0f);
 		}
+		view.setCenter(body->GetPosition());
 
-		// Update
-		for (auto bodyItr = celestialBodies.begin(); bodyItr != celestialBodies.end();)
+		// Zooming
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
 		{
-			CelestialBody &body = *bodyItr;
-			for (CelestialBody &otherBody : celestialBodies)
-			{
-				if (&body == &otherBody)
-				{
-					continue;
-				}
-
-				body.UpdateGravity(otherBody, deltaTime);
-
-				if (body.Intersect(otherBody))
-				{
-					if (body.GetRadius() > otherBody.GetRadius())
-					{
-						body.Merge(otherBody);
-					}
-					else
-					{
-						otherBody.Merge(body);
-					}
-				}
-			}
-
-			body.Update(deltaTime);
-
-			if (!body.GetAlive())
-			{
-				bodyItr = celestialBodies.erase(bodyItr);
-			}
-			else
-			{
-				bodyItr++;
-			}
+			view.zoom(0.995f - deltaTime);
 		}
-
-		// Render
-		shader.setUniform("numCelestialBodies", int(celestialBodies.size()));
-		std::uint32_t i = 0;
-		for (CelestialBody &body : celestialBodies)
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
 		{
-			const std::string index = "["s + std::to_string(i) + "]"s;
-			shader.setUniform("positions"s + index,
-				sf::Glsl::Vec2(
-					body.GetPosition().x - camera.x,
-					window.getSize().y - body.GetPosition().y + camera.y));
-			shader.setUniform("masses"s + index, body.GetMass());
-			shader.setUniform("radii"s + index, body.GetRadius());
-			i++;
+			view.zoom(1.005f + deltaTime);
 		}
 
-		window.draw(shaderSprite, &shader);
+		window.setView(view);
+
+		world.Update(deltaTime);
+		world.Render(window);
+
+		if (addToPath.getElapsedTime().asSeconds() >= addTopathTime)
+		{
+			path.push_back(body->GetPosition());
+
+			if (path.size() > int(128.0f / addTopathTime))
+			{
+				path.erase(path.begin());
+			}
+
+			addToPath.restart();
+		}
+
+		sf::VertexArray array(sf::PrimitiveType::LineStrip);
+		std::for_each(path.begin(), path.end(), [&](auto &pos)
+		{
+			array.append(pos);
+		});
+		array.append(body->GetPosition());
+		window.draw(array);
+
 		window.display();
 
 		// Update title bar

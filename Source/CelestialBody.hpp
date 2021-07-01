@@ -30,6 +30,8 @@ public:
 	void SetRadius(const float radius);
 	float GetRadius() const;
 
+	float GetDensity() const;
+
 	void SetAlive(const bool alive);
 	bool GetAlive() const;
 
