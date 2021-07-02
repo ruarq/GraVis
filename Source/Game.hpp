@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "World.hpp"
+#include "CelestialBody.hpp"
 
 class Game final
 {
@@ -19,8 +20,11 @@ private:
 	void UpdateWindowTitle(const float deltaTime);
 	void HandleEvents();
 
+	void HandleViewControls(const float deltaTime);
+
 private:
 	sf::RenderWindow window;
+	sf::View view;
 	World world;
 
 	sf::Clock deltaTime, windowTitleUpdate;
