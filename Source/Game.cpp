@@ -5,7 +5,7 @@ Game::Game()
 	window.create(sf::VideoMode(1280u, 720u), windowTitle);
 	view = window.getDefaultView();
 
-	for (std::uint32_t i = 0; i < 1024; i++)
+	for (std::uint32_t i = 0; i < 512; i++)
 	{
 		CelestialBody *body = new CelestialBody();
 		body->SetMass(std::rand() % 2001 + 10);
@@ -13,6 +13,13 @@ Game::Game()
 		body->SetRadius(body->GetMass() / 100.0f);
 		body->SetVelocity(sf::Vector2f(std::rand() % 101 - 50, std::rand() % 101 - 50));
 		body->SetPathVisible(true);
+
+		if (i == 0)
+		{
+			body->SetMass(5'000'000.0f);
+			body->SetRadius(100.0f);
+		}
+
 		world.AddBody(body);
 	}
 }
@@ -21,13 +28,13 @@ void Game::Run()
 {
 	while (window.isOpen())
 	{
-		const float dt = deltaTime.restart().asSeconds();
+		dt = deltaTime.restart().asSeconds();
 
 		this->HandleEvents();
 
 		window.clear();
 
-		this->HandleViewControls(dt);
+		this->HandleViewControls();
 		window.setView(view);
 
 		world.Update(dt);
@@ -35,17 +42,17 @@ void Game::Run()
 
 		window.display();
 
-		this->UpdateWindowTitle(dt);
+		this->UpdateWindowTitle();
 	}
 }
 
-void Game::UpdateWindowTitle(const float deltaTime)
+void Game::UpdateWindowTitle()
 {
 	using namespace std::string_literals;
 
 	if (windowTitleUpdate.getElapsedTime().asSeconds() >= 1.0f / windowTitleUpdateFreq)
 	{
-		window.setTitle(windowTitle + " - "s + std::to_string(int(1.0f / deltaTime)) + " FPS"s);
+		window.setTitle(windowTitle + " - "s + std::to_string(int(1.0f / dt)) + " FPS"s);
 		windowTitleUpdate.restart();
 	}
 }
@@ -65,33 +72,50 @@ void Game::HandleEvents()
 				view.setSize(event.size.width, event.size.height);
 				break;
 
+			case sf::Event::MouseWheelScrolled:
+				view.zoom(1.0f + float(event.mouseWheel.delta) * dt);
+				break;
+
 			default:
 				break;
 		}
 	}
 }
 
-void Game::HandleViewControls(const float deltaTime)
+void Game::HandleViewControls()
 {
+	const float zoomSpeed = 1.0f;
 	const float cameraSpeed = 500.0f;
 
+	// View movement
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
 	{
-		view.move(0.0f, -cameraSpeed * deltaTime);
+		view.move(0.0f, -cameraSpeed * dt);
 	}
 	
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
 	{
-		view.move(-cameraSpeed * deltaTime, 0.0f);
+		view.move(-cameraSpeed * dt, 0.0f);
 	}
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
 	{
-		view.move(0.0f, cameraSpeed * deltaTime);
+		view.move(0.0f, cameraSpeed * dt);
 	}
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
 	{
-		view.move(cameraSpeed * deltaTime, 0.0f);
+		view.move(cameraSpeed * dt, 0.0f);
+	}
+
+	// View zooming
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
+	{
+		view.zoom(1.0f - zoomSpeed * dt);
+	}
+	
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
+	{
+		view.zoom(1.0f + zoomSpeed * dt);
 	}
 }

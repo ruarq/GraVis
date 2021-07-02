@@ -17,10 +17,10 @@ public:
 	void Run();
 
 private:
-	void UpdateWindowTitle(const float deltaTime);
+	void UpdateWindowTitle();
 	void HandleEvents();
 
-	void HandleViewControls(const float deltaTime);
+	void HandleViewControls();
 
 private:
 	sf::RenderWindow window;
@@ -28,6 +28,7 @@ private:
 	World world;
 
 	sf::Clock deltaTime, windowTitleUpdate;
+	float dt = 0.0f;
 
 	const std::string windowTitle = "Gravity Visualization - C++ & SFML2.5.1";
 };
