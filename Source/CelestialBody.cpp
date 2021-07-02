@@ -2,6 +2,8 @@
 
 void CelestialBody::Update(const float deltaTime)
 {
+	this->UpdatePath();
+
 	position += velocity * deltaTime;
 }
 
@@ -13,14 +15,32 @@ void CelestialBody::Render(sf::RenderWindow &window)
 	shape.setPosition(position);
 	shape.setFillColor(sf::Color::White);
 	window.draw(shape);
+
+	if (pathVisible)
+	{
+		sf::VertexArray pathArray(sf::PrimitiveType::LineStrip);
+
+		for (const sf::Vector2f &position : path)
+		{
+			pathArray.append(position);
+		}
+
+		pathArray.append(position);
+
+		window.draw(pathArray);
+	}
 }
 
 void CelestialBody::UpdateGravity(const CelestialBody &otherBody, const float deltaTime)
 {
 	const float distance = Distance(position, otherBody.position);
-	const float force = G * (mass * otherBody.mass) / (distance * distance);
-	const sf::Vector2f acceleration = Normalized(otherBody.position - position) * (force / mass);
-	velocity += acceleration * deltaTime;
+
+	if (distance != 0.0f)
+	{
+		const float force = G * (mass * otherBody.mass) / (distance * distance);
+		const sf::Vector2f acceleration = Normalized(otherBody.position - position) * (force / mass);
+		velocity += acceleration * deltaTime;
+	}
 }
 
 bool CelestialBody::Intersect(const CelestialBody &otherBody) const
@@ -95,4 +115,23 @@ void CelestialBody::SetAlive(const bool alive)
 bool CelestialBody::GetAlive() const
 {
 	return alive;
+}
+
+void CelestialBody::SetPathVisible(const bool visible)
+{
+	this->pathVisible = visible;
+}
+
+void CelestialBody::UpdatePath()
+{
+	if (pathUpdate.getElapsedTime().asSeconds() >= 1.0f / pathUpdateFreq)
+	{
+		path.push_back(position);
+		pathUpdate.restart();
+	}
+
+	if (path.size() > pathMemory)
+	{
+		path.erase(path.begin());
+	}
 }

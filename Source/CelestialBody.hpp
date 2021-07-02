@@ -8,6 +8,8 @@ class CelestialBody final
 {
 public:
 	static constexpr float G = 10.0f;
+	static constexpr std::uint32_t pathMemory = 1024;
+	static constexpr float pathUpdateFreq = 10.0f;
 
 public:
 	void Update(const float deltaTime);
@@ -35,8 +37,17 @@ public:
 	void SetAlive(const bool alive);
 	bool GetAlive() const;
 
+	void SetPathVisible(const bool visible);
+
+private:
+	void UpdatePath();
+
 private:
 	sf::Vector2f position, velocity;
-	float mass = 0.0f, radius = 0.0f;
+	float mass = 1.0f, radius = 1.0f;
 	bool alive = true;
+
+	std::vector<sf::Vector2f> path;
+	sf::Clock pathUpdate;
+	bool pathVisible = false;
 };
