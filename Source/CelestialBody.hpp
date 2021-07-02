@@ -35,7 +35,7 @@ public:
 	float GetDensity() const;
 
 	void SetAlive(const bool alive);
-	bool GetAlive() const;
+	bool IsAlive() const;
 
 	void SetPathVisible(const bool visible);
 

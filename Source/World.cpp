@@ -38,7 +38,7 @@ void World::Update(const float deltaTime)
 		(*itr)->Update(deltaTime);
 
 		// Remove dead bodies
-		if (!(*itr)->GetAlive())
+		if (!(*itr)->IsAlive())
 		{
 			delete *itr;
 			itr = celestialBodies.erase(itr);

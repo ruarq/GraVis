@@ -112,7 +112,7 @@ void CelestialBody::SetAlive(const bool alive)
 	this->alive = alive;
 }
 
-bool CelestialBody::GetAlive() const
+bool CelestialBody::IsAlive() const
 {
 	return alive;
 }
