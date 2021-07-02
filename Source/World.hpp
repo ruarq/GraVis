@@ -17,6 +17,6 @@ public:
 
 	void AddBody(CelestialBody *body);
 
-// private:
+private:
 	std::vector<CelestialBody*> celestialBodies;
 };
