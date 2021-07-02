@@ -15,7 +15,7 @@ public:
 	void Update(const float deltaTime);
 	void Render(sf::RenderWindow &window);
 
-	void AddBody(const CelestialBody &body);
+	void AddBody(CelestialBody *body);
 
 // private:
 	std::vector<CelestialBody*> celestialBodies;

@@ -58,7 +58,7 @@ void World::Render(sf::RenderWindow &window)
 	}
 }
 
-void World::AddBody(const CelestialBody &body)
+void World::AddBody(CelestialBody *body)
 {
-	celestialBodies.push_back(new CelestialBody(body));
+	celestialBodies.push_back(body);
 }
