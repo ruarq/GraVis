@@ -7,9 +7,9 @@
 class CelestialBody final
 {
 public:
-	static constexpr float G = 10.0f;
-	static constexpr std::uint32_t pathMemory = 1024;
-	static constexpr float pathUpdateFreq = 10.0f;
+	static constexpr float G = 50.0f;
+	static constexpr std::uint32_t pathMemory = 128;
+	static constexpr float pathUpdateFreq = 60.0f;
 
 public:
 	void Update(const float deltaTime);
