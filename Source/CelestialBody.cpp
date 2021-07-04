@@ -15,26 +15,34 @@ void CelestialBody::Update(World &world, const float deltaTime)
 
 void CelestialBody::Render(sf::RenderWindow &window)
 {
-	sf::CircleShape shape;
-	shape.setRadius(radius);
-	shape.setOrigin(shape.getRadius(), shape.getRadius());
-	shape.setPosition(position);
-	shape.setFillColor(bodyColor);
-	window.draw(shape);
-
 	if (pathVisible)
 	{
 		sf::VertexArray pathArray(sf::PrimitiveType::LineStrip);
 
+		std::uint32_t i = 0;
 		for (const sf::Vector2f &position : path)
 		{
-			pathArray.append(position);
+			// f(x) = -(x-1)^8+1
+			const float x = i++ / float(path.size());
+			const float gradient = -std::pow(x - 1, 8.0f) + 1.0f;
+			
+			sf::Vertex vertex = position;
+			vertex.color = sf::Color(gradient * 255, gradient * 255, gradient * 255);
+
+			pathArray.append(vertex);
 		}
 
 		pathArray.append(position);
 
 		window.draw(pathArray);
 	}
+
+	sf::CircleShape shape;
+	shape.setRadius(radius);
+	shape.setOrigin(shape.getRadius(), shape.getRadius());
+	shape.setPosition(position);
+	shape.setFillColor(bodyColor);
+	window.draw(shape);
 }
 
 void CelestialBody::UpdateGravity(CelestialBody &otherBody, const float deltaTime) const
