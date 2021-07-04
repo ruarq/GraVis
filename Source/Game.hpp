@@ -2,6 +2,8 @@
 
 #include <SFML/Graphics.hpp>
 
+#include "GameState.hpp"
+#include "RunningState.hpp"
 #include "World.hpp"
 #include "CelestialBody.hpp"
 
@@ -20,17 +22,11 @@ private:
 	void UpdateWindowTitle();
 	void HandleEvents();
 
-	void HandleViewControls();
-
 private:
+	GameState *state = nullptr;
 	sf::RenderWindow window;
-	sf::View view;
-	World world;
-
-	sf::Vector2f start = sf::Vector2f(-1.0f, -1.0f);
-
-	sf::Clock deltaTime, windowTitleUpdate;
-	float dt = 0.0f;
 
 	const std::string windowTitle = "Gravity Visualization - C++ & SFML2.5.1";
+	sf::Clock deltaTime, windowTitleUpdate;
+	float dt = 0.0f;
 };
