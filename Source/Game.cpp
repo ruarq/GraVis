@@ -5,7 +5,7 @@ Game::Game()
 	window.create(sf::VideoMode(1280, 720), windowTitle);
 	view = window.getDefaultView();
 
-	for (std::uint32_t i = 0; i < 1024; i++)
+	for (std::uint32_t i = 0; i < 8; i++)
 	{
 		CelestialBody *body = new CelestialBody();
 		body->SetMass(std::rand() % 2001 + 10);
@@ -51,8 +51,19 @@ void Game::Run()
 			window.draw(line);
 		}
 
+		CelestialBody *body = world.GetBodyAt(window.mapPixelToCoords(sf::Mouse::getPosition(window)));
+		if (body)
+		{
+			body->SetBodyColor(sf::Color::Red);
+		}
+
 		world.Update(dt * speed);
 		world.Render(window);
+
+		if (body)
+		{
+			body->SetBodyColor(sf::Color::White);
+		}
 
 		window.setView(view);
 		window.display();
