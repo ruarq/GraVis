@@ -68,3 +68,16 @@ void World::AddBody(CelestialBody *body)
 {
 	celestialBodies.push_back(body);
 }
+
+CelestialBody* World::GetBodyAt(const sf::Vector2f &position)
+{
+	for (CelestialBody *body : celestialBodies)
+	{
+		if (Distance(position, body->GetPosition()) <= body->GetRadius())
+		{
+			return body;
+		}
+	}
+
+	return nullptr;
+}

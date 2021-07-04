@@ -19,6 +19,13 @@ public:
 
 	void AddBody(CelestialBody *body);
 
+	/**
+	 * @brief Get a body from the world using world coordinates
+	 * @param position The position in world coordinates
+	 * @return Pointer to celestial body object or nullptr if there is no object at the position
+	 */
+	CelestialBody* GetBodyAt(const sf::Vector2f &position);
+
 private:
 	std::vector<CelestialBody*> celestialBodies;
 };
