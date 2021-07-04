@@ -12,6 +12,8 @@ public:
 	~World();
 
 public:
+	void Destroy();
+
 	void Update(const float deltaTime);
 	void Render(sf::RenderWindow &window);
 

@@ -1,10 +1,16 @@
 #include "CelestialBody.hpp"
 
-void CelestialBody::Update(const float deltaTime)
+void CelestialBody::Update(World &world, const float deltaTime)
 {
-	this->UpdatePath();
+	if (pathVisible)
+	{
+		this->UpdatePath();
+	}
 
+	prevPosition = position;
 	position += velocity * deltaTime;
+
+	distanceTravelled += Distance(position, prevPosition);
 }
 
 void CelestialBody::Render(sf::RenderWindow &window)
@@ -13,7 +19,7 @@ void CelestialBody::Render(sf::RenderWindow &window)
 	shape.setRadius(radius);
 	shape.setOrigin(shape.getRadius(), shape.getRadius());
 	shape.setPosition(position);
-	shape.setFillColor(sf::Color::White);
+	shape.setFillColor(bodyColor);
 	window.draw(shape);
 
 	if (pathVisible)
@@ -31,15 +37,15 @@ void CelestialBody::Render(sf::RenderWindow &window)
 	}
 }
 
-void CelestialBody::UpdateGravity(const CelestialBody &otherBody, const float deltaTime)
+void CelestialBody::UpdateGravity(CelestialBody &otherBody, const float deltaTime) const
 {
 	const float distance = Distance(position, otherBody.position);
 
 	if (distance != 0.0f)
 	{
-		const float force = G * (mass * otherBody.mass) / (distance * distance);
-		const sf::Vector2f acceleration = Normalized(otherBody.position - position) * (force / mass);
-		velocity += acceleration * deltaTime;
+		const float force = -G * (otherBody.mass * mass) / (distance * distance);
+		const sf::Vector2f acceleration = Normalized(otherBody.position - position) * (force / otherBody.mass);
+		otherBody.velocity += acceleration * deltaTime;
 	}
 }
 
@@ -51,7 +57,7 @@ bool CelestialBody::Intersect(const CelestialBody &otherBody) const
 void CelestialBody::Merge(CelestialBody &otherBody)
 {
 	// Calculate the radius after the merge
-	const float volume = mass / this->GetDensity() + otherBody.mass / this->GetDensity();
+	const float volume = mass / this->GetDensity() + otherBody.mass / otherBody.GetDensity();
 	radius = Root(volume / ((4.0f / 3.0f) * float(M_PI)), 3.0f);
 
 	// Calculate the velocity after the merge
@@ -117,20 +123,26 @@ bool CelestialBody::IsAlive() const
 	return alive;
 }
 
+void CelestialBody::SetBodyColor(const sf::Color &color)
+{
+	bodyColor = color;
+}
+
 void CelestialBody::SetPathVisible(const bool visible)
 {
-	this->pathVisible = visible;
+	pathVisible = visible;
 }
 
 void CelestialBody::UpdatePath()
 {
-	if (pathUpdate.getElapsedTime().asSeconds() >= 1.0f / pathUpdateFreq)
+	if (distanceTravelled >= pathUpdateDistance)
 	{
 		path.push_back(position);
 		pathUpdate.restart();
+		distanceTravelled = 0.0f;
 	}
 
-	if (path.size() > pathMemory)
+	if (path.size() > pathResolution)
 	{
 		path.erase(path.begin());
 	}

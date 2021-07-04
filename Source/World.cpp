@@ -4,10 +4,16 @@
 
 World::~World()
 {
+}
+
+void World::Destroy()
+{
 	for (CelestialBody* body : celestialBodies)
 	{
 		delete body;
 	}
+
+	celestialBodies.clear();
 }
 
 void World::Update(const float deltaTime)
@@ -35,7 +41,7 @@ void World::Update(const float deltaTime)
 			}
 		}
 
-		(*itr)->Update(deltaTime);
+		(*itr)->Update(*this, deltaTime);
 
 		// Remove dead bodies
 		if (!(*itr)->IsAlive())

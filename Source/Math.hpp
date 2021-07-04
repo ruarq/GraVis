@@ -2,6 +2,8 @@
 
 #include <cmath>
 
+#include <SFML/System/Vector2.hpp>
+
 template<typename T>
 float Length(const T &a)
 {

@@ -27,6 +27,8 @@ private:
 	sf::View view;
 	World world;
 
+	sf::Vector2f start = sf::Vector2f(-1.0f, -1.0f);
+
 	sf::Clock deltaTime, windowTitleUpdate;
 	float dt = 0.0f;
 
