@@ -5,7 +5,7 @@ Game::Game()
 	window.create(sf::VideoMode(1280, 720), windowTitle);
 	view = window.getDefaultView();
 
-	for (std::uint32_t i = 0; i < 32; i++)
+	for (std::uint32_t i = 0; i < 1024; i++)
 	{
 		CelestialBody *body = new CelestialBody();
 		body->SetMass(std::rand() % 2001 + 10);
