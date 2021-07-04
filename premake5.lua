@@ -9,6 +9,8 @@ project "Gravity-Visualisation"
 	targetdir "Bin/%{cfg.buildcfg}"
 	objdir "Obj"
 
+	includedirs { "Source" }
+
 	files { "Source/**.hpp", "Source/**.cpp" }
 	links { "sfml-system", "sfml-window", "sfml-graphics" }
 
