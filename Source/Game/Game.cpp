@@ -3,7 +3,9 @@
 Game::Game()
 {
 	window.create(sf::VideoMode(1280, 720), windowTitle);
-	state = new RunningState();
+	UI::SetWindow(&window);
+
+	state = new RunningState(window);
 }
 
 void Game::Run()
@@ -23,7 +25,7 @@ void Game::Run()
 			state = newState;
 		}
 
-		state->Render(window);
+		state->Render();
 
 		window.display();
 
