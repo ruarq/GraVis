@@ -131,6 +131,11 @@ bool CelestialBody::IsAlive() const
 	return alive;
 }
 
+void CelestialBody::SetPathLength(const float length)
+{
+	pathUpdateDistance = length / pathResolution;
+}
+
 void CelestialBody::SetBodyColor(const sf::Color &color)
 {
 	bodyColor = color;

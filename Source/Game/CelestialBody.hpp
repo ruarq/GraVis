@@ -37,6 +37,8 @@ public:
 	void SetAlive(const bool alive);
 	bool IsAlive() const;
 
+	void SetPathLength(const float length);
+
 	void SetBodyColor(const sf::Color &color);
 
 	void SetPathVisible(const bool visible);
@@ -54,7 +56,7 @@ private:
 
 	std::vector<sf::Vector2f> path;
 	sf::Clock pathUpdate;
-	float pathUpdateDistance = 10.0f;
+	float pathUpdateDistance = 2.0f;
 	float distanceTravelled = 0.0f;
 	bool pathVisible = false;
 };
