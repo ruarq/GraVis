@@ -9,18 +9,24 @@
 class RunningState final : public GameState
 {
 public:
-	RunningState();
+	RunningState(sf::RenderWindow &window);
 
 public:
 	GameState* Update(const float deltaTime) override;
-	void Render(sf::RenderWindow &window) override;
+	void Render() override;
 
 	void OnEvent(const sf::Event &event) override;
 
 private:
-	void HandleViewControls(const float deltaTime);
+	void UpdateView(const float deltaTime);
 
 private:
-	World world;
+	sf::RenderWindow &window;
 	sf::View view;
+	float viewTransitionSpeed = 16.0f;
+
+	World world;
+	CelestialBody *bodyToFollow = nullptr;
+
+	bool isPaused = false;
 };

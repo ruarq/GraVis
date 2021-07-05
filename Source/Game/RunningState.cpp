@@ -1,22 +1,17 @@
 #include "RunningState.hpp"
 
-RunningState::RunningState()
+RunningState::RunningState(sf::RenderWindow &window)
+	: window(window)
 {
-	for (std::uint32_t i = 0; i < 32; i++)
+	for (std::uint32_t i = 0; i < 512; i++)
 	{
 		CelestialBody *body = new CelestialBody();
 		body->SetMass(std::rand() % 2001 + 10);
 		body->SetPosition(sf::Vector2f(std::rand() % 10'001 - 5000, std::rand() % 10'001 - 5000));
 		body->SetRadius(body->GetMass() / 100.0f);
-		body->SetVelocity(sf::Vector2f(std::rand() % 501 - 250, std::rand() % 501 - 250));
+		body->SetVelocity(sf::Vector2f(std::rand() % 101 - 50, std::rand() % 101 - 50));
 		body->SetPathVisible(true);
-
-		// if (i ==31)
-		// {
-		// 	body->SetMass(5'000'000.0f);
-		// 	body->SetRadius(100.0f);
-		// 	body->SetVelocity(body->GetVelocity() * 0.2f);
-		// }
+		body->SetPathLength(2048.0f);
 
 		world.AddBody(body);
 	}
@@ -24,19 +19,23 @@ RunningState::RunningState()
 
 GameState* RunningState::Update(const float deltaTime)
 {
-	this->HandleViewControls(deltaTime);
-	world.Update(deltaTime);
+	if (!isPaused)
+	{
+		world.Update(deltaTime);
+	}
+
+	this->UpdateView(deltaTime);
 
 	return nullptr;
 }
 
-void RunningState::Render(sf::RenderWindow &window)
+void RunningState::Render()
 {
 	window.setView(view);
 	world.Render(window);
 }
 
-void RunningState::HandleViewControls(const float deltaTime)
+void RunningState::UpdateView(const float deltaTime)
 {
 	const float zoomSpeed = 1.0f;
 	float cameraSpeed = 1000.0f;
@@ -82,6 +81,21 @@ void RunningState::HandleViewControls(const float deltaTime)
 	{
 		view.zoom(1.0f + zoomSpeed * deltaTime);
 	}
+
+	// View following body
+	if (bodyToFollow)
+	{
+		sf::Vector2f direction = bodyToFollow->GetPosition() - view.getCenter();
+		const float distance = Length(direction);
+		direction = Normalized(direction);
+
+		view.move(direction * distance / viewTransitionSpeed);
+
+		if (!bodyToFollow->IsAlive())
+		{
+			bodyToFollow = nullptr;
+		}
+	}
 }
 
 void RunningState::OnEvent(const sf::Event &event)
@@ -90,6 +104,42 @@ void RunningState::OnEvent(const sf::Event &event)
 	{
 		case sf::Event::Resized:
 			view.setSize(event.size.width, event.size.height);
+			break;
+
+		case sf::Event::MouseButtonPressed:
+			switch (event.mouseButton.button)
+			{
+				case sf::Mouse::Button::Left:
+					bodyToFollow = world.GetBodyAt(sf::Vector2f(window.mapPixelToCoords(sf::Mouse::getPosition(window))));
+					break;
+
+				default:
+					break;
+			}
+			break;
+
+		case sf::Event::KeyPressed:
+			switch (event.key.code)
+			{
+				case sf::Keyboard::Key::W:
+				case sf::Keyboard::Key::A:
+				case sf::Keyboard::Key::S:
+				case sf::Keyboard::Key::D:
+					bodyToFollow = nullptr;
+					break;
+			}
+			break;
+
+		case sf::Event::KeyReleased:
+			switch (event.key.code)
+			{
+				case sf::Keyboard::Key::Space:
+					isPaused = !isPaused;
+					break;
+
+				default:
+					break;
+			}
 			break;
 
 		default:
