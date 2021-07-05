@@ -6,7 +6,6 @@
 #include "RunningState.hpp"
 #include "World.hpp"
 #include "CelestialBody.hpp"
-#include "UI/UI.hpp"
 
 class Game final
 {

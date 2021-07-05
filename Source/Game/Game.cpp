@@ -3,7 +3,6 @@
 Game::Game()
 {
 	window.create(sf::VideoMode(1280, 720), windowTitle);
-	UI::SetWindow(&window);
 
 	state = new RunningState(window);
 }
