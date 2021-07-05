@@ -28,4 +28,5 @@ public:
 
 private:
 	std::vector<CelestialBody*> celestialBodies;
+	std::vector<CelestialBody*> deadBodies;
 };

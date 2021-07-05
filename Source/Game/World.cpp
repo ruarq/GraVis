@@ -18,6 +18,13 @@ void World::Destroy()
 
 void World::Update(const float deltaTime)
 {
+	// Remove dead bodies from last update
+	for (CelestialBody *deadBody : deadBodies)
+	{
+		delete deadBody;
+	}
+	deadBodies.clear();
+
 	for (auto itr = celestialBodies.begin(); itr != celestialBodies.end();)
 	{
 		for (auto jtr = itr + 1; jtr != celestialBodies.end(); jtr++)
@@ -46,7 +53,7 @@ void World::Update(const float deltaTime)
 		// Remove dead bodies
 		if (!(*itr)->IsAlive())
 		{
-			delete *itr;
+			deadBodies.push_back(*itr);
 			itr = celestialBodies.erase(itr);
 		}
 		else
