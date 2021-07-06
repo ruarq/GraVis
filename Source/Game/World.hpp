@@ -26,7 +26,11 @@ public:
 	 */
 	CelestialBody* GetBodyAt(const sf::Vector2f &position);
 
+	float GetG() const;
+
 private:
 	std::vector<CelestialBody*> celestialBodies;
 	std::vector<CelestialBody*> deadBodies;
+
+	float G = 10.0f;
 };

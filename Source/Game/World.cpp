@@ -30,8 +30,8 @@ void World::Update(const float deltaTime)
 		for (auto jtr = itr + 1; jtr != celestialBodies.end(); jtr++)
 		{
 			// Update gravity
-			(*itr)->UpdateGravity(**jtr, deltaTime);
-			(*jtr)->UpdateGravity(**itr, deltaTime);
+			(*itr)->UpdateGravity(*this, **jtr, deltaTime);
+			(*jtr)->UpdateGravity(*this, **itr, deltaTime);
 
 			// Check collision
 			if ((*itr)->Intersect(**jtr))
@@ -87,4 +87,9 @@ CelestialBody* World::GetBodyAt(const sf::Vector2f &position)
 	}
 
 	return nullptr;
+}
+
+float World::GetG() const
+{
+	return G;
 }
