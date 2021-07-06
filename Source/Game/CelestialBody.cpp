@@ -45,13 +45,13 @@ void CelestialBody::Render(sf::RenderWindow &window)
 	window.draw(shape);
 }
 
-void CelestialBody::UpdateGravity(CelestialBody &otherBody, const float deltaTime) const
+void CelestialBody::UpdateGravity(World &world, CelestialBody &otherBody, const float deltaTime) const
 {
 	const float distance = Distance(position, otherBody.position);
 
 	if (distance != 0.0f)
 	{
-		const float force = -G * (otherBody.mass * mass) / (distance * distance);
+		const float force = -world.GetG() * (otherBody.mass * mass) / (distance * distance);
 		const sf::Vector2f acceleration = Normalized(otherBody.position - position) * (force / otherBody.mass);
 		otherBody.velocity += acceleration * deltaTime;
 	}

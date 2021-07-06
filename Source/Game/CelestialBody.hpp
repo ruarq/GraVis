@@ -15,7 +15,7 @@ public:
 	void Update(World &world, const float deltaTime);
 	void Render(sf::RenderWindow &window);
 
-	void UpdateGravity(CelestialBody &otherBody, const float deltaTime) const;
+	void UpdateGravity(World &world, CelestialBody &otherBody, const float deltaTime) const;
 
 	bool Intersect(const CelestialBody &otherBody) const;
 	void Merge(CelestialBody &otherBody);
