@@ -3,7 +3,7 @@
 RunningState::RunningState(sf::RenderWindow &window)
 	: window(window)
 {
-	for (std::uint32_t i = 0; i < 512; i++)
+	for (std::uint32_t i = 0; i < 1024; i++)
 	{
 		CelestialBody *body = new CelestialBody();
 		body->SetMass(std::rand() % 2001 + 10);
@@ -37,7 +37,6 @@ void RunningState::Render()
 
 void RunningState::UpdateView(const float deltaTime)
 {
-	const float zoomSpeed = 1.0f;
 	float cameraSpeed = 1000.0f;
 
 	// View movement
@@ -71,25 +70,12 @@ void RunningState::UpdateView(const float deltaTime)
 		view.move(cameraSpeed * deltaTime, 0.0f);
 	}
 
-	// View zooming
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
-	{
-		view.zoom(1.0f - zoomSpeed * deltaTime);
-	}
-	
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
-	{
-		view.zoom(1.0f + zoomSpeed * deltaTime);
-	}
-
 	// View following body
 	if (bodyToFollow)
 	{
-		sf::Vector2f direction = bodyToFollow->GetPosition() - view.getCenter();
-		const float distance = Length(direction);
-		direction = Normalized(direction);
+		const sf::Vector2f direction = bodyToFollow->GetPosition() - view.getCenter();
 
-		view.move(direction * distance / viewTransitionSpeed);
+		view.move(direction * cameraFollowSpeed * deltaTime);
 
 		if (!bodyToFollow->IsAlive())
 		{
@@ -117,6 +103,20 @@ void RunningState::OnEvent(const sf::Event &event)
 					break;
 			}
 			break;
+
+		case sf::Event::MouseWheelScrolled:
+		{
+			const float zoomAmount{ 1.1f }; // zoom by 10%
+			
+			if (event.mouseWheelScroll.delta > 0)
+			{
+				view.zoom(1.f / zoomAmount);
+			}
+			else if (event.mouseWheelScroll.delta < 0)
+			{
+					view.zoom(zoomAmount);
+			}
+		} break;
 
 		case sf::Event::KeyPressed:
 			switch (event.key.code)

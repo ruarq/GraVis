@@ -23,7 +23,7 @@ private:
 private:
 	sf::RenderWindow &window;
 	sf::View view;
-	float viewTransitionSpeed = 16.0f;
+	float cameraFollowSpeed = 16.0f;
 
 	World world;
 	CelestialBody *bodyToFollow = nullptr;
