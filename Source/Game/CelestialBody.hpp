@@ -40,6 +40,9 @@ public:
 	void SetPathLength(const float length);
 
 	void SetBodyColor(const sf::Color &color);
+	sf::Color GetBodyColor() const;
+
+	void SetPathColor(const sf::Color &color);
 
 	void SetPathVisible(const bool visible);
 
@@ -53,6 +56,7 @@ private:
 	bool alive = true;
 
 	sf::Color bodyColor = sf::Color::White;
+	sf::Color pathColor = sf::Color::White;
 
 	std::vector<sf::Vector2f> path;
 	sf::Clock pathUpdate;

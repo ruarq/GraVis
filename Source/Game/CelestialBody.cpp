@@ -27,12 +27,14 @@ void CelestialBody::Render(sf::RenderWindow &window)
 			const float gradient = -std::pow(x - 1, 8.0f) + 1.0f;
 			
 			sf::Vertex vertex = position;
-			vertex.color = sf::Color(gradient * 255, gradient * 255, gradient * 255);
+			vertex.color = sf::Color(gradient * pathColor.r, gradient * pathColor.g, gradient * pathColor.b);
 
 			pathArray.append(vertex);
 		}
 
-		pathArray.append(position);
+		sf::Vertex currentPos = position;
+		currentPos.color = pathColor;
+		pathArray.append(currentPos);
 
 		window.draw(pathArray);
 	}
@@ -139,6 +141,16 @@ void CelestialBody::SetPathLength(const float length)
 void CelestialBody::SetBodyColor(const sf::Color &color)
 {
 	bodyColor = color;
+}
+
+sf::Color CelestialBody::GetBodyColor() const
+{
+	return bodyColor;
+}
+
+void CelestialBody::SetPathColor(const sf::Color &color)
+{
+	pathColor = color;
 }
 
 void CelestialBody::SetPathVisible(const bool visible)

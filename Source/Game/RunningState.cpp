@@ -3,7 +3,7 @@
 RunningState::RunningState(sf::RenderWindow &window)
 	: window(window)
 {
-	for (std::uint32_t i = 0; i < 1024; i++)
+	for (std::uint32_t i = 0; i < 2048; i++)
 	{
 		CelestialBody *body = new CelestialBody();
 		body->SetMass(std::rand() % 2001 + 10);
@@ -12,6 +12,10 @@ RunningState::RunningState(sf::RenderWindow &window)
 		body->SetVelocity(sf::Vector2f(std::rand() % 101 - 50, std::rand() % 101 - 50));
 		body->SetPathVisible(true);
 		body->SetPathLength(2048.0f);
+
+		const sf::Color color(std::rand() % 201 + 55, std::rand() % 201 + 55, std::rand() % 201 + 55);
+		body->SetBodyColor(color);
+		body->SetPathColor(color);
 
 		world.AddBody(body);
 	}
@@ -33,6 +37,32 @@ void RunningState::Render()
 {
 	window.setView(view);
 	world.Render(window);
+
+	sf::CircleShape shape;
+	shape.setFillColor(sf::Color::Transparent);
+	// shape.setOutlineColor(sf::Color(179, 217, 255));
+
+	if (bodyToFollow)
+	{
+		shape.setPosition(bodyToFollow->GetPosition());
+		shape.setRadius(bodyToFollow->GetRadius() * 1.1f);
+		shape.setOutlineColor(bodyToFollow->GetBodyColor());
+	}
+
+	shape.setOrigin(shape.getRadius(), shape.getRadius());
+	shape.setOutlineThickness(shape.getRadius() / 15.0f);
+	window.draw(shape);
+	
+	if (CelestialBody *body = world.GetBodyAt(window.mapPixelToCoords(sf::Mouse::getPosition(window))))
+	{
+		shape.setPosition(body->GetPosition());
+		shape.setRadius(body->GetRadius() * 1.1f);
+		shape.setOutlineColor(body->GetBodyColor());
+	}
+
+	shape.setOrigin(shape.getRadius(), shape.getRadius());
+	shape.setOutlineThickness(shape.getRadius() / 15.0f);
+	window.draw(shape);
 }
 
 void RunningState::UpdateView(const float deltaTime)
