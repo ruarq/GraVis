@@ -40,7 +40,6 @@ void RunningState::Render()
 
 	sf::CircleShape shape;
 	shape.setFillColor(sf::Color::Transparent);
-	// shape.setOutlineColor(sf::Color(179, 217, 255));
 
 	if (bodyToFollow)
 	{
@@ -67,7 +66,7 @@ void RunningState::Render()
 
 void RunningState::UpdateView(const float deltaTime)
 {
-	float cameraSpeed = 1000.0f;
+	float cameraSpeed = 500.0f * currentZoom;
 
 	// View movement
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift))
@@ -136,15 +135,17 @@ void RunningState::OnEvent(const sf::Event &event)
 
 		case sf::Event::MouseWheelScrolled:
 		{
-			const float zoomAmount{ 1.1f }; // zoom by 10%
+			const float zoomAmount = 1.1f; // zoom by 10%
 			
 			if (event.mouseWheelScroll.delta > 0)
 			{
 				view.zoom(1.f / zoomAmount);
+				currentZoom *= 1.0f / zoomAmount;
 			}
 			else if (event.mouseWheelScroll.delta < 0)
 			{
-					view.zoom(zoomAmount);
+				view.zoom(zoomAmount);
+				currentZoom *= zoomAmount;
 			}
 		} break;
 

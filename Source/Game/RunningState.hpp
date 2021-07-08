@@ -24,6 +24,7 @@ private:
 	sf::RenderWindow &window;
 	sf::View view;
 	float cameraFollowSpeed = 16.0f;
+	float currentZoom = 1.0f;
 
 	World world;
 	CelestialBody *bodyToFollow = nullptr;
