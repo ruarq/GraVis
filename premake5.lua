@@ -1,7 +1,7 @@
-workspace "Gravity-Visualisation"
+workspace "Gravity-Visualization"
 	configurations { "Debug", "Release" }
 
-project "Gravity-Visualisation"
+project "Gravity-Visualization"
 	kind "ConsoleApp"
 	language "C++"
 	cppdialect "C++17"
