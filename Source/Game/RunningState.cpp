@@ -3,7 +3,7 @@
 RunningState::RunningState(sf::RenderWindow &window)
 	: window(window)
 {
-	for (std::uint32_t i = 0; i < 2048; i++)
+	for (std::uint32_t i = 0; i < 1024; i++)
 	{
 		CelestialBody *body = new CelestialBody();
 		body->SetMass(std::rand() % 2001 + 10);
@@ -119,6 +119,7 @@ void RunningState::OnEvent(const sf::Event &event)
 	{
 		case sf::Event::Resized:
 			view.setSize(event.size.width, event.size.height);
+			view.zoom(currentZoom);
 			break;
 
 		case sf::Event::MouseButtonPressed:
