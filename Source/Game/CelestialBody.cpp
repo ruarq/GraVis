@@ -22,11 +22,8 @@ void CelestialBody::Render(sf::RenderWindow &window)
 		std::uint32_t i = 0;
 		for (const sf::Vector2f &position : path)
 		{
-			// gradient function
-			auto f = [](const float x) { return -std::pow(x - 1.0f, 8.0f) + 1.0f; };
-
 			const float x = i++ / float(path.size());
-			const float gradient = f(x);
+			const float gradient = -std::pow(x - 1.0f, 8.0f) + 1.0f;
 			
 			sf::Vertex vertex = position;
 			vertex.color = sf::Color(gradient * pathColor.r, gradient * pathColor.g, gradient * pathColor.b);
