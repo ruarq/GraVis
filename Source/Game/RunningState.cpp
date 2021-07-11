@@ -3,22 +3,7 @@
 RunningState::RunningState(sf::RenderWindow &window)
 	: window(window)
 {
-	for (std::uint32_t i = 0; i < 1024; i++)
-	{
-		CelestialBody *body = new CelestialBody();
-		body->SetMass(std::rand() % 2001 + 10);
-		body->SetPosition(sf::Vector2f(std::rand() % 10'001 - 5000, std::rand() % 10'001 - 5000));
-		body->SetRadius(body->GetMass() / 100.0f);
-		body->SetVelocity(sf::Vector2f(std::rand() % 101 - 50, std::rand() % 101 - 50));
-		body->SetPathVisible(true);
-		body->SetPathLength(2048.0f);
-
-		const sf::Color color(std::rand() % 201 + 55, std::rand() % 201 + 55, std::rand() % 201 + 55);
-		body->SetBodyColor(color);
-		body->SetPathColor(color);
-
-		world.AddBody(body);
-	}
+	uiContext.Create(window);
 }
 
 GameState* RunningState::Update(const float deltaTime)
@@ -30,6 +15,17 @@ GameState* RunningState::Update(const float deltaTime)
 
 	this->UpdateView(deltaTime);
 
+	// temporary size controls
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
+	{
+		bodySize -= 100.0f * deltaTime;
+	}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
+	{
+		bodySize += 100.0f * deltaTime;
+	}
+	bodySize = std::abs(bodySize);
+
 	return nullptr;
 }
 
@@ -38,6 +34,9 @@ void RunningState::Render()
 	window.setView(view);
 	world.Render(window);
 
+	/**
+	 * Draw circle around selected celestial body and the body the mouse hovers on
+	 */
 	sf::CircleShape shape;
 	shape.setFillColor(sf::Color::Transparent);
 
@@ -51,7 +50,7 @@ void RunningState::Render()
 	shape.setOrigin(shape.getRadius(), shape.getRadius());
 	shape.setOutlineThickness(shape.getRadius() / 15.0f);
 	window.draw(shape);
-	
+
 	if (CelestialBody *body = world.GetBodyAt(window.mapPixelToCoords(sf::Mouse::getPosition(window))))
 	{
 		shape.setPosition(body->GetPosition());
@@ -62,6 +61,33 @@ void RunningState::Render()
 	shape.setOrigin(shape.getRadius(), shape.getRadius());
 	shape.setOutlineThickness(shape.getRadius() / 15.0f);
 	window.draw(shape);
+
+	/**
+	 * Draw a circle where the mouse currently is, so the player can see how large the body will be
+	 */
+	shape.setRadius(bodySize);
+	shape.setOrigin(shape.getRadius(), shape.getRadius());
+	shape.setPosition(window.mapPixelToCoords(sf::Mouse::getPosition(window)));
+	shape.setOutlineColor(sf::Color::White);
+	shape.setOutlineThickness(1.5f);
+	window.draw(shape);
+
+	/**
+	 * Draw a line when the mouse is dragged to show the direction the body will move in
+	 */
+
+	const sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+
+	if (isDragging)
+	{
+		sf::VertexArray line(sf::PrimitiveType::LineStrip);
+		line.append(window.mapPixelToCoords(mousePos));
+		line.append(mouseDragStart);
+		window.draw(line);
+	}
+
+	// Render ui
+	uiContext.Render();
 }
 
 void RunningState::UpdateView(const float deltaTime)
@@ -115,6 +141,8 @@ void RunningState::UpdateView(const float deltaTime)
 
 void RunningState::OnEvent(const sf::Event &event)
 {
+	uiContext.OnEvent(event);
+
 	switch (event.type)
 	{
 		case sf::Event::Resized:
@@ -126,8 +154,39 @@ void RunningState::OnEvent(const sf::Event &event)
 			switch (event.mouseButton.button)
 			{
 				case sf::Mouse::Button::Left:
-					bodyToFollow = world.GetBodyAt(sf::Vector2f(window.mapPixelToCoords(sf::Mouse::getPosition(window))));
+					bodyToFollow = world.GetBodyAt(window.mapPixelToCoords(sf::Mouse::getPosition(window)));
+
+					if (!bodyToFollow)
+					{
+						isDragging = true;
+						mouseDragStart = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+					}
 					break;
+
+				default:
+					break;
+			}
+			break;
+
+		case sf::Event::MouseButtonReleased:
+			switch (event.mouseButton.button)
+			{
+				case sf::Mouse::Button::Left:
+				{	
+					if (isDragging)
+					{
+						isDragging = false;
+						const sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+
+						CelestialBody *body = new CelestialBody();
+						body->SetPosition(mouseDragStart);
+						body->SetVelocity(mousePos - mouseDragStart);
+						body->SetRadius(bodySize);
+						body->SetMass(bodySize * 10'000.0f);
+						body->SetPathVisible(true);
+						world.AddBody(body);
+					}
+				}	break;
 
 				default:
 					break;
@@ -148,7 +207,7 @@ void RunningState::OnEvent(const sf::Event &event)
 				view.zoom(zoomAmount);
 				currentZoom *= zoomAmount;
 			}
-		} break;
+		}	break;
 
 		case sf::Event::KeyPressed:
 			switch (event.key.code)
