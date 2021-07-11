@@ -3,9 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "Game.hpp"
-#include "World.hpp"
-#include "CelestialBody.hpp"
+#include "Game/Game.hpp"
 
 int main()
 {
