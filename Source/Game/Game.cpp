@@ -5,6 +5,17 @@ Game::Game()
 	window.create(sf::VideoMode(1280, 720), windowTitle);
 
 	state = new RunningState(window);
+
+	// Load custom cursor image
+	sf::Image cursorImg;
+	cursorImg.loadFromFile("Resources/Images/Cursor16x16.png");
+
+	// Create sf::Cursor from that image
+	sf::Cursor cursor;
+	cursor.loadFromPixels(cursorImg.getPixelsPtr(), cursorImg.getSize(), sf::Vector2u(1, 1));
+
+	// Change the window cursor
+	window.setMouseCursor(cursor);
 }
 
 void Game::Run()

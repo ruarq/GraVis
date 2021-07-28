@@ -23,6 +23,7 @@ void Button::Render()
 	{
 		sf::Sprite sprite;
 		sprite.setTexture(texture);
+		sprite.setPosition(position);
 		sprite.setScale(size.x / texture.getSize().x, size.y / texture.getSize().y);
 		context->GetTarget()->draw(sprite);
 	}
@@ -33,7 +34,8 @@ void Button::OnEvent(const sf::Event &event)
 	switch (event.type)
 	{
 		case sf::Event::MouseButtonReleased:
-			if (sf::FloatRect(position, size).contains(sf::Vector2f(event.mouseButton.x, event.mouseButton.y)))
+			// Call onPress if the method was set, and if the mouse cursor is inside the rect of the button
+			if (sf::FloatRect(position, size).contains(sf::Vector2f(event.mouseButton.x, event.mouseButton.y)) && onPress)
 			{
 				this->onPress();
 			}

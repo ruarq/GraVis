@@ -32,6 +32,7 @@ private:
 	float currentZoom = 1.0f;
 
 	Mui::Context uiContext;
+	bool addBodies = false;
 
 	World world;
 	CelestialBody *bodyToFollow = nullptr;

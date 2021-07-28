@@ -4,6 +4,41 @@ RunningState::RunningState(sf::RenderWindow &window)
 	: window(window)
 {
 	uiContext.Create(window);
+
+	// Load up the ui buttons
+	Mui::Button *moveButton = new Mui::Button();
+	Mui::Button *addButton = new Mui::Button();
+
+	// Load their textures
+	sf::Texture moveBtnTexture, addBtnTexture;
+	moveBtnTexture.loadFromFile("Resources/Images/UI/Cursor.png");
+	addBtnTexture.loadFromFile("Resources/Images/UI/Plus.png");
+
+	// Set their textures
+	moveButton->SetTexture(moveBtnTexture);
+	addButton->SetTexture(addBtnTexture);
+
+	// Set their positions & sizes
+	moveButton->SetPosition(sf::Vector2f(10.0f, 10.0f));
+	moveButton->SetSize(sf::Vector2f(24.0f, 24.0f));
+	
+	addButton->SetPosition(sf::Vector2f(10.0f, 44.0f));
+	addButton->SetSize(sf::Vector2f(24.0f, 24.0f));
+
+	// Button OnPress functions
+	moveButton->OnPress([&]()
+	{
+		addBodies = false;
+	});
+
+	addButton->OnPress([&]()
+	{
+		addBodies = true;
+	});
+
+	// Add them to the ui
+	uiContext.Add(moveButton);
+	uiContext.Add(addButton);
 }
 
 GameState* RunningState::Update(const float deltaTime)
@@ -65,12 +100,15 @@ void RunningState::Render()
 	/**
 	 * Draw a circle where the mouse currently is, so the player can see how large the body will be
 	 */
-	shape.setRadius(bodySize);
-	shape.setOrigin(shape.getRadius(), shape.getRadius());
-	shape.setPosition(window.mapPixelToCoords(sf::Mouse::getPosition(window)));
-	shape.setOutlineColor(sf::Color::White);
-	shape.setOutlineThickness(1.5f);
-	window.draw(shape);
+	if (addBodies)
+	{
+		shape.setRadius(bodySize);
+		shape.setOrigin(shape.getRadius(), shape.getRadius());
+		shape.setPosition(window.mapPixelToCoords(sf::Mouse::getPosition(window)));
+		shape.setOutlineColor(sf::Color::White);
+		shape.setOutlineThickness(1.5f);
+		window.draw(shape);
+	}
 
 	/**
 	 * Draw a line when the mouse is dragged to show the direction the body will move in
@@ -78,7 +116,7 @@ void RunningState::Render()
 
 	const sf::Vector2i mousePos = sf::Mouse::getPosition(window);
 
-	if (isDragging)
+	if (isDragging && addBodies)
 	{
 		sf::VertexArray line(sf::PrimitiveType::LineStrip);
 		line.append(window.mapPixelToCoords(mousePos));
@@ -141,8 +179,6 @@ void RunningState::UpdateView(const float deltaTime)
 
 void RunningState::OnEvent(const sf::Event &event)
 {
-	uiContext.OnEvent(event);
-
 	switch (event.type)
 	{
 		case sf::Event::Resized:
@@ -173,9 +209,8 @@ void RunningState::OnEvent(const sf::Event &event)
 			{
 				case sf::Mouse::Button::Left:
 				{	
-					if (isDragging)
+					if (isDragging && addBodies)
 					{
-						isDragging = false;
 						const sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
 
 						CelestialBody *body = new CelestialBody();
@@ -186,6 +221,7 @@ void RunningState::OnEvent(const sf::Event &event)
 						body->SetPathVisible(true);
 						world.AddBody(body);
 					}
+					isDragging = false;
 				}	break;
 
 				default:
@@ -236,4 +272,6 @@ void RunningState::OnEvent(const sf::Event &event)
 		default:
 			break;
 	}
+
+	uiContext.OnEvent(event);
 }
