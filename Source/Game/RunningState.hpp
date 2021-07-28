@@ -14,7 +14,7 @@ public:
 	RunningState(sf::RenderWindow &window);
 
 public:
-	GameState* Update(const float deltaTime) override;
+	void Update(const float deltaTime) override;
 	void Render() override;
 
 	void OnEvent(const sf::Event &event) override;

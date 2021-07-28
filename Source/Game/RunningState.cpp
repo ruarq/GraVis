@@ -60,8 +60,6 @@ GameState* RunningState::Update(const float deltaTime)
 		bodySize += 100.0f * deltaTime;
 	}
 	bodySize = std::abs(bodySize);
-
-	return nullptr;
 }
 
 void RunningState::Render()

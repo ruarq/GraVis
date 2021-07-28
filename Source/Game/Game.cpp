@@ -29,17 +29,18 @@ void Game::Run()
 
 		window.clear();
 
-		if (GameState *newState = state->Update(dt))
-		{
-			delete state;
-			state = newState;
-		}
-
+		state->Update();
 		state->Render();
 
 		window.display();
 
 		this->UpdateWindowTitle();
+
+		if (GameState *newState = state->NextState())
+		{
+			delete state;
+			state = newState;
+		}
 	}
 }
 
