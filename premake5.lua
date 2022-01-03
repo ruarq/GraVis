@@ -1,22 +1,21 @@
 workspace "Gravity-Visualization"
-	configurations { "Debug", "Release" }
+	configurations { "debug", "release" }
 
 project "Gravity-Visualization"
 	kind "ConsoleApp"
 	language "C++"
 	cppdialect "C++17"
 
-	targetdir "Bin/%{cfg.buildcfg}"
-	objdir "Obj"
+	targetdir "bin/%{cfg.buildcfg}"
+	objdir "obj"
 
-	includedirs { "Source" }
+	files { "source/**.hpp", "source/**.cpp" }
 
-	files { "Source/**.hpp", "Source/**.cpp" }
+	includedirs { "source" }
 	links { "sfml-system", "sfml-window", "sfml-graphics" }
 
-	filter { "configurations:Debug" }
+	filter { "configurations:debug" }
 		symbols "On"
-		defines { "DEBUG" }
 
-	filter { "configurations:Release" }
+	filter { "configurations:release" }
 		optimize "On"

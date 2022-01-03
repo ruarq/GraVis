@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 
 #include <vector>
+#include <thread>
 
 class CelestialBody;
 
