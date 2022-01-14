@@ -12,7 +12,7 @@ project "Gravity-Visualization"
 	files { "source/**.hpp", "source/**.cpp" }
 
 	includedirs { "source" }
-	links { "sfml-system", "sfml-window", "sfml-graphics" }
+	links { "sfml-system", "sfml-window", "sfml-graphics", "pthread" }
 
 	filter { "configurations:debug" }
 		symbols "On"

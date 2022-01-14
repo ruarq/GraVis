@@ -72,7 +72,14 @@ void CelestialBody::Merge(CelestialBody &otherBody)
 	// Calculate the velocity after the merge
 	velocity = ((mass * velocity) + (otherBody.mass * otherBody.velocity)) / (mass + otherBody.mass);
 
+	// Calculate position of the "new" body
+	const sf::Vector2f delta = otherBody.GetPosition() - this->GetPosition();
+	const float fraction = (otherBody.mass / mass) / 2.0f;
+	position += fraction * delta;
+	
+	// Add mass
 	mass += otherBody.mass;
+
 
 	otherBody.SetAlive(false);
 }

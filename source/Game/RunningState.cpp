@@ -4,15 +4,23 @@ RunningState::RunningState(sf::RenderWindow &window)
 	: window(window)
 {
 	uiContext.Create(window);
+	const float radius = 200.0f;
+	const float speed = 5.0f;
+	const int numBodies = 16;
 
-	for (int i = 0; i < 1000; ++i)
+	for (int i = 0; i < numBodies; ++i)
 	{
 		auto body = new CelestialBody();
-		body->SetPosition({ std::rand() % 20000, std::rand() % 20000 });
-		body->SetMass((std::rand() % 901 + 100) * 10);
-		body->SetRadius(std::rand() % 91 + 10);
+		float angle = i * (360.0f / float(numBodies));
+		body->SetPosition({ radius * std::sin(angle / 180.0f * float(M_PI)), radius * std::cos(angle / 180.0f * float(M_PI)) });
+		angle += 90.0f;
+		body->SetVelocity({ speed * std::sin(angle / 180.0f * float(M_PI)), speed * std::cos(angle / 180.0f * float(M_PI)) });
+		body->SetMass(250);
+		body->SetRadius(5);
 		world.AddBody(body);
 	}
+
+	view.move(-sf::Vector2f(window.getSize()) / 2.0f);
 }
 
 GameState* RunningState::Update(const float deltaTime)
@@ -74,26 +82,26 @@ void RunningState::Render()
 	/**
 	 * Draw a circle where the mouse currently is, so the player can see how large the body will be
 	 */
-	shape.setRadius(bodySize);
-	shape.setOrigin(shape.getRadius(), shape.getRadius());
-	shape.setPosition(window.mapPixelToCoords(sf::Mouse::getPosition(window)));
-	shape.setOutlineColor(sf::Color::White);
-	shape.setOutlineThickness(1.5f);
-	window.draw(shape);
+	// shape.setRadius(bodySize);
+	// shape.setOrigin(shape.getRadius(), shape.getRadius());
+	// shape.setPosition(window.mapPixelToCoords(sf::Mouse::getPosition(window)));
+	// shape.setOutlineColor(sf::Color::White);
+	// shape.setOutlineThickness(1.5f);
+	// window.draw(shape);
 
 	/**
 	 * Draw a line when the mouse is dragged to show the direction the body will move in
 	 */
 
-	const sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+	// const sf::Vector2i mousePos = sf::Mouse::getPosition(window);
 
-	if (isDragging)
-	{
-		sf::VertexArray line(sf::PrimitiveType::LineStrip);
-		line.append(window.mapPixelToCoords(mousePos));
-		line.append(mouseDragStart);
-		window.draw(line);
-	}
+	// if (isDragging)
+	// {
+	// 	sf::VertexArray line(sf::PrimitiveType::LineStrip);
+	// 	line.append(window.mapPixelToCoords(mousePos));
+	// 	line.append(mouseDragStart);
+	// 	window.draw(line);
+	// }
 
 	// Render ui
 	uiContext.Render();
@@ -182,19 +190,19 @@ void RunningState::OnEvent(const sf::Event &event)
 			{
 				case sf::Mouse::Button::Left:
 				{	
-					if (isDragging)
-					{
-						isDragging = false;
-						const sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+					// if (isDragging)
+					// {
+					// 	isDragging = false;
+					// 	const sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
 
-						CelestialBody *body = new CelestialBody();
-						body->SetPosition(mouseDragStart);
-						body->SetVelocity(mousePos - mouseDragStart);
-						body->SetRadius(bodySize);
-						body->SetMass(bodySize * 10'000.0f);
-						body->SetPathVisible(true);
-						world.AddBody(body);
-					}
+					// 	CelestialBody *body = new CelestialBody();
+					// 	body->SetPosition(mouseDragStart);
+					// 	body->SetVelocity(mousePos - mouseDragStart);
+					// 	body->SetRadius(bodySize);
+					// 	body->SetMass(bodySize * 10'000.0f);
+					// 	body->SetPathVisible(true);
+					// 	world.AddBody(body);
+					// }
 				}	break;
 
 				default:

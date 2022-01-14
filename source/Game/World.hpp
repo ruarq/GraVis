@@ -27,6 +27,7 @@ public:
 	 */
 	CelestialBody* GetBodyAt(const sf::Vector2f &position);
 
+	void SetG(const float G);
 	float GetG() const;
 
 private:
